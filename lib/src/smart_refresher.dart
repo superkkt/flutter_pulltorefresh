@@ -49,6 +49,7 @@ class SmartRefresher extends StatefulWidget {
   final OnOffsetChange onOffsetChange;
   //controll inner state
   final RefreshController controller;
+  final double initialOffset;
 
   SmartRefresher({
     Key key,
@@ -63,6 +64,7 @@ class SmartRefresher extends StatefulWidget {
     this.enablePullUp: default_enablePullUp,
     this.onRefresh,
     this.onOffsetChange,
+    this.initialOffset,
   })  : assert(child != null),
         controller = controller ?? new RefreshController(),this.headerBuilder= headerBuilder ?? ((BuildContext context, int mode){return new ClassicIndicator(mode:mode);}),
         this.footerBuilder= footerBuilder ?? ((BuildContext context, int mode){return new ClassicIndicator(mode:mode);}),
@@ -169,7 +171,7 @@ class _SmartRefresherState extends State<SmartRefresher> {
   }
 
   void _init() {
-    _scrollController = new ScrollController();
+    _scrollController = new ScrollController(initialScrollOffset: widget.initialOffset);
     widget.controller.scrollController = _scrollController;
     SchedulerBinding.instance.addPostFrameCallback((_) {
       _onAfterBuild();
