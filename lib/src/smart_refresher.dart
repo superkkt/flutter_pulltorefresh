@@ -49,7 +49,6 @@ class SmartRefresher extends StatefulWidget {
   final OnOffsetChange onOffsetChange;
   //controll inner state
   final RefreshController controller;
-  final double initialOffset;
 
   SmartRefresher({
     Key key,
@@ -64,7 +63,6 @@ class SmartRefresher extends StatefulWidget {
     this.enablePullUp: default_enablePullUp,
     this.onRefresh,
     this.onOffsetChange,
-    this.initialOffset,
   })  : assert(child != null),
         controller = controller ?? new RefreshController(),this.headerBuilder= headerBuilder ?? ((BuildContext context, int mode){return new ClassicIndicator(mode:mode);}),
         this.footerBuilder= footerBuilder ?? ((BuildContext context, int mode){return new ClassicIndicator(mode:mode);}),
@@ -171,7 +169,7 @@ class _SmartRefresherState extends State<SmartRefresher> {
   }
 
   void _init() {
-    _scrollController = new ScrollController(initialScrollOffset: widget.initialOffset);
+    _scrollController = new ScrollController();
     widget.controller.scrollController = _scrollController;
     SchedulerBinding.instance.addPostFrameCallback((_) {
       _onAfterBuild();
@@ -328,29 +326,27 @@ class _SmartRefresherState extends State<SmartRefresher> {
             child: widget.headerBuilder != null && widget.enablePullDown
                 ? _buildWrapperByConfig(widget.headerConfig, true)
                 : new Container()));
-    return new LayoutBuilder(builder: (context, cons) {
-      return new Stack(
-        children: <Widget>[
-          new Positioned(
-              top: !widget.enablePullDown || widget.headerConfig is LoadConfig
-                  ? 0.0
-                  : -_headerHeight,
-              bottom: !widget.enablePullUp || widget.footerConfig is LoadConfig
-                  ? 0.0
-                  : -_footerHeight,
-              left: 0.0,
-              right: 0.0,
-              child: new NotificationListener(
-                child: new CustomScrollView(
-                  physics: new RefreshScrollPhysics(enableOverScroll: widget.enableOverScroll),
-                  controller: _scrollController,
-                  slivers:  slivers,
-                ),
-                onNotification: _dispatchScrollEvent,
-              )),
-        ],
-      );
-    });
+    return new Stack(
+      children: <Widget>[
+        new Positioned(
+            top: !widget.enablePullDown || widget.headerConfig is LoadConfig
+                ? 0.0
+                : -_headerHeight,
+            bottom: !widget.enablePullUp || widget.footerConfig is LoadConfig
+                ? 0.0
+                : -_footerHeight,
+            left: 0.0,
+            right: 0.0,
+            child: new NotificationListener(
+              child: new CustomScrollView(
+                physics: new RefreshScrollPhysics(enableOverScroll: widget.enableOverScroll),
+                controller: _scrollController,
+                slivers:  slivers,
+              ),
+              onNotification: _dispatchScrollEvent,
+            )),
+      ],
+    );
   }
 }
 
